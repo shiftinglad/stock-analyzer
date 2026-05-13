@@ -59,6 +59,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="nav" id="nav"></div>
 <div class="container" id="main"></div>
 
+<script src="stocks.js"></script>
 <script>
 var DB_KEY='stock_analysis_data',CATS_KEY='stock_categories',DEFAULT_CATS=['核心资产','高股息','科技成长','周期股','观察仓'];
 var CAT_COLORS={'核心资产':'blue','高股息':'green','科技成长':'purple','周期股':'yellow','观察仓':'red'};
@@ -82,43 +83,41 @@ function render(){
 }
 function go(p){currentPage=p;editingCode=null;render()}
 
-// ── 搜索：用 script tag 加载东方财富搜索API ──
-var _searchCb=null;
+// ── 本地搜索（离线可用）──
 function doSearch(){
-  var q=document.getElementById('sQuery').value.trim();
+  var q=document.getElementById('sQuery').value.trim().toLowerCase();
   if(!q)return;
   var res=document.getElementById('searchResult');
   var info=document.getElementById('companyInfo');
-  res.innerHTML='<div class="search-results"><span class="loading"></span>查询中...</div>';
+  res.innerHTML='<div class="search-results"><span class="loading"></span>搜索中...</div>';
   if(info)info.innerHTML='';
-
-  // 先移除旧的script
-  var old=document.getElementById('_searchScript');
-  if(old)old.parentNode.removeChild(old);
-
-  var cbName='sCb'+Date.now();
-  window[cbName]=function(data){
-    delete window[cbName];
-    var old2=document.getElementById('_searchScript');
-    if(old2)old2.parentNode.removeChild(old2);
-    var list=(data.QuotationCodeTable&&data.QuotationCodeTable.Data)||[];
-    list=list.filter(function(r){return r.Classify==='AStock'});
-    if(!list.length){res.innerHTML='<div class="search-results">❌ 未找到匹配A股，请手动输入</div>';return}
-    res.innerHTML='<div class="search-results"><select id="sSel" onchange="onSelect()">'+
-      list.map(function(r){return '<option value="'+r.Code+'" data-name="'+r.Name+'">'+r.Code+' - '+r.Name+' ('+(r.SecurityTypeName||'')+')</option>'}).join('')+
-      '</select></div>';
-    onSelect();
-  };
-
-  var sc=document.createElement('script');
-  sc.id='_searchScript';
-  sc.src='https://searchapi.eastmoney.com/api/suggest/get?input='+encodeURIComponent(q)+'&type=14&token=D43BF722C8E33BDC906FB84D85E326E8&cb='+cbName;
-  sc.onerror=function(){
-    delete window[cbName];
-    sc.parentNode.removeChild(sc);
-    res.innerHTML='<div class="search-results">❌ 网络错误，请手动输入</div>';
-  };
-  document.head.appendChild(sc);
+  
+  // 从本地数据库匹配
+  var results=[];
+  if(typeof STOCK_DB!=='undefined'){
+    for(var i=0;i<STOCK_DB.length;i++){
+      var s=STOCK_DB[i];
+      if(s.c.indexOf(q)===0||s.n.toLowerCase().indexOf(q)>=0){
+        results.push(s);
+        if(results.length>=20)break;
+      }
+    }
+    // 拼音首字母模糊匹配（简单版）
+    if(results.length<5){
+      for(var i=0;i<STOCK_DB.length;i++){
+        var s=STOCK_DB[i];
+        if(s.c.toLowerCase().indexOf(q)>=0||s.n.indexOf(q)>=0){
+          var exists=false;for(var j=0;j<results.length;j++){if(results[j].c===s.c){exists=true;break}}
+        if(!exists){results.push(s);if(results.length>=20)break}
+      }
+    }
+  }
+  }
+  if(!results.length){res.innerHTML='<div class="search-results">❌ 未找到匹配A股，请手动输入代码和名称</div>';return}
+  res.innerHTML='<div class="search-results"><select id="sSel" onchange="onSelect()">'+
+    results.map(function(r){return '<option value="'+r.c+'" data-name="'+r.n+'">'+r.c+' - '+r.n+'</option>'}).join('')+
+    '</select></div>';
+  onSelect();
 }
 
 function onSelect(){
@@ -129,34 +128,10 @@ function onSelect(){
   loadProfile(opt.value);
 }
 
-// ── 公司简介：用 script tag (JSONP) ──
+// ── 公司简介：也用本地匹配（离线）──
 function loadProfile(code){
-  var el=document.getElementById('companyInfo');if(!el)return;
-  el.innerHTML='<div class="info-box"><span class="loading"></span>加载公司简介...</div>';
-
-  var old=document.getElementById('_profileScript');
-  if(old)old.parentNode.removeChild(old);
-
-  var cbName='pCb'+Date.now();
-  window[cbName]=function(data){
-    delete window[cbName];
-    var old2=document.getElementById('_profileScript');
-    if(old2)old2.parentNode.removeChild(old2);
-    var d=(data.result&&data.result.data&&data.result.data[0])||null;
-    if(d&&d.ORG_PROFILE){
-      el.innerHTML='<div class="info-box"><h4>🏢 '+esc(d.SECURITY_NAME_ABBR||'')+' - 公司简介</h4>'+esc(d.ORG_PROFILE.trim())+'</div>';
-    }else{el.innerHTML=''}
-  };
-
-  var sc=document.createElement('script');
-  sc.id='_profileScript';
-  sc.src='https://datacenter.eastmoney.com/securities/api/data/v1/get?reportName=RPT_F10_BASIC_ORGINFO&columns=SECURITY_NAME_ABBR,ORG_PROFILE&filter=(SECURITY_CODE=%22'+code+'%22)&cb='+cbName;
-  sc.onerror=function(){
-    delete window[cbName];
-    sc.parentNode.removeChild(sc);
-    el.innerHTML='';
-  };
-  document.head.appendChild(sc);
+  // 离线版暂不显示公司简介，后续可扩展
+  var el=document.getElementById('companyInfo');if(el)el.innerHTML='';
 }
 
 // ── 新增/编辑 ──

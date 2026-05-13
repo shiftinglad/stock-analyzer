@@ -7,20 +7,18 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f2f5;color:#333;min-height:100vh}
-.header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:16px 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
 .header h1{font-size:18px;font-weight:600}
 .header .subtitle{font-size:12px;opacity:.7}
 .nav{display:flex;gap:8px;background:#fff;padding:10px 16px;border-bottom:1px solid #e0e0e0;overflow-x:auto}
 .nav button{padding:8px 16px;border:1px solid #ddd;border-radius:20px;background:#f8f9fa;cursor:pointer;font-size:14px;white-space:nowrap;transition:all .2s}
 .nav button.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
-.nav button:hover{background:#e8e8e8}
-.nav button.active:hover{background:#2a2a4e}
 .container{max-width:800px;margin:0 auto;padding:16px}
 .card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .card-title{font-size:16px;font-weight:600;color:#1a1a2e}
 .card-meta{font-size:12px;color:#888}
-.card-category{display:inline-block;background:#e8edf5;color:#1a1a2e;padding:2px 10px;border-radius:12px;font-size:12px}
+.card-category{display:inline-block;background:#e8edf5;color:#1a1a2e;padding:2px 10px;border-radius:12px;font-size:12px;margin-left:6px}
 .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
 .badge-blue{background:#dbeafe;color:#1d4ed8}
 .badge-red{background:#fee2e2;color:#dc2626}
@@ -38,15 +36,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .btn-danger{background:#fee2e2;color:#dc2626;padding:6px 12px;font-size:12px}
 .btn-danger:hover{background:#fecaca}
 .btn-edit{background:#dbeafe;color:#1d4ed8;padding:6px 12px;font-size:12px}
-.btn-edit:hover{background:#bfdbfe}
 .btn-sm{padding:6px 12px;font-size:13px}
 .search-row{display:flex;gap:8px}
 .search-row input{flex:1}
-.search-row button{padding:10px 16px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px}
+.search-row button{padding:10px 16px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;white-space:nowrap}
 .search-results{background:#f8f9fa;border-radius:8px;padding:8px;margin-bottom:16px}
 .search-results select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:14px}
+.info-box{background:#f0f4ff;border-left:3px solid #1a1a2e;border-radius:0 8px 8px 0;padding:12px 14px;margin-bottom:16px;font-size:13px;line-height:1.7;color:#444}
+.info-box h4{color:#1a1a2e;margin-bottom:4px;font-size:14px}
 .detail-section{margin-bottom:12px}
-.detail-section h4{font-size:13px;color:#888;margin-bottom:4px;text-transform:uppercase}
+.detail-section h4{font-size:13px;color:#888;margin-bottom:4px}
 .detail-section p{font-size:14px;line-height:1.6;white-space:pre-wrap}
 .empty{text-align:center;padding:40px 20px;color:#999}
 .empty .icon{font-size:48px;margin-bottom:12px}
@@ -54,70 +53,74 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .stat-card{flex:1;background:#fff;border-radius:12px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .stat-num{font-size:24px;font-weight:700;color:#1a1a2e}
 .stat-label{font-size:12px;color:#888}
-.filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .filters select{padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px}
 .actions{display:flex;gap:8px;margin-top:8px}
 .export-btns{display:flex;gap:12px;margin-top:12px}
 .export-btns button{flex:1}
-.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center}
-.modal{background:#fff;border-radius:16px;padding:20px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto}
-.modal h3{margin-bottom:16px}
-.confirm{padding:12px 20px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;cursor:pointer;width:100%;font-size:14px}
+.loading{display:inline-block;width:16px;height:16px;border:2px solid #ccc;border-top-color:#1a1a2e;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 <div class="header">
-  <div>
-    <h1>📊 A股投资分析</h1>
-    <div class="subtitle">个人投资分析工具</div>
-  </div>
+  <h1>📊 A股投资分析</h1>
+  <div class="subtitle">个人投资分析工具</div>
 </div>
 <div class="nav" id="nav"></div>
 <div class="container" id="main"></div>
 
 <script>
-const DB_KEY = 'stock_analysis_data';
-const CATS_KEY = 'stock_categories';
-const DEFAULT_CATS = ['核心资产','高股息','科技成长','周期股','观察仓'];
-const CAT_COLORS = {'核心资产':'blue','高股息':'green','科技成长':'purple','周期股':'yellow','观察仓':'red'};
+const DB_KEY='stock_analysis_data';
+const CATS_KEY='stock_categories';
+const DEFAULT_CATS=['核心资产','高股息','科技成长','周期股','观察仓'];
+const CAT_COLORS={'核心资产':'blue','高股息':'green','科技成长':'purple','周期股':'yellow','观察仓':'red'};
 
 function loadData(){return JSON.parse(localStorage.getItem(DB_KEY)||'[]')}
 function saveData(d){localStorage.setItem(DB_KEY,JSON.stringify(d))}
 function loadCats(){return JSON.parse(localStorage.getItem(CATS_KEY)||'null')||DEFAULT_CATS}
 function saveCats(c){localStorage.setItem(CATS_KEY,JSON.stringify(c))}
 
-let currentPage = 'add';
-let editingCode = null;
+let currentPage='add',editingCode=null;
 
 function render(){
-  const nav = document.getElementById('nav');
-  const pages = [{id:'add',label:'📝 新增公司'},{id:'pool',label:'📂 股票池'},{id:'all',label:'📋 全部记录'},{id:'export',label:'📤 导出'}];
-  nav.innerHTML = pages.map(p=>`<button class="${currentPage===p.id?'active':''}" onclick="go('${p.id}')">${p.label}</button>`).join('');
-  
-  const main = document.getElementById('main');
-  if(currentPage==='add') renderAdd(main);
-  else if(currentPage==='pool') renderPool(main);
-  else if(currentPage==='all') renderAll(main);
-  else if(currentPage==='export') renderExport(main);
+  document.getElementById('nav').innerHTML=
+    [{id:'add',label:'📝 新增'},{id:'pool',label:'📂 股票池'},{id:'all',label:'📋 全部记录'},{id:'export',label:'📤 导出'}]
+    .map(p=>`<button class="${currentPage===p.id?'active':''}" onclick="go('${p.id}')">${p.label}</button>`).join('');
+  const m=document.getElementById('main');
+  ({add:renderAdd,pool:renderPool,all:renderAll,export:renderExport})[currentPage](m);
 }
+function go(p){currentPage=p;editingCode=null;render()}
 
-function go(page){currentPage=page;editingCode=null;render()}
+function esc(s){return s?s.replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
+
+// ── JSONP搜索 ──
+function jsonpFetch(url){
+  return new Promise((resolve,reject)=>{
+    const cb='_cb'+Date.now()+Math.random().toString(36).slice(2);
+    const timer=setTimeout(()=>{cleanup();reject('timeout')},8000);
+    function cleanup(){delete window[cb];const s=document.getElementById(cb);if(s)s.remove();clearTimeout(timer)}
+    window[cb]=d=>{cleanup();resolve(d)};
+    const sc=document.createElement('script');sc.id=cb;sc.src=url.replace('__CB__',cb);
+    sc.onerror=()=>{cleanup();reject('error')};
+    document.head.appendChild(sc);
+  });
+}
 
 // ── 新增/编辑 ──
 function renderAdd(el){
-  const data = loadData();
-  const comp = editingCode ? data.find(c=>c.code===editingCode) : null;
-  el.innerHTML = `
+  const comp=editingCode?loadData().find(c=>c.code===editingCode):null;
+  el.innerHTML=`
     <div class="card">
       <h3 style="margin-bottom:16px">${comp?'✏️ 编辑公司':'📝 新增公司分析'}</h3>
       <div class="form-group">
-        <label>🔍 搜索股票（支持代码/名称/拼音）</label>
+        <label>🔍 搜索股票（代码/名称/拼音）</label>
         <div class="search-row">
-          <input id="sQuery" placeholder="如 600519 / 贵州茅台 / gzmt" value="">
-          <button onclick="searchStock()">查询</button>
+          <input id="sQuery" placeholder="如 600519 / 贵州茅台 / gzmt">
+          <button onclick="doSearch()">查询</button>
         </div>
       </div>
       <div id="searchResult"></div>
+      <div id="companyInfo"></div>
       <div class="form-group">
         <label>股票代码</label>
         <input id="sCode" placeholder="自动填充或手动输入" value="${comp?comp.code:''}" ${comp?'disabled':''}>
@@ -129,79 +132,70 @@ function renderAdd(el){
       <div class="form-group">
         <label>分类</label>
         <div style="display:flex;gap:8px">
-          <select id="sCat" style="flex:2">
-            ${loadCats().map(c=>`<option ${comp&&comp.category===c?'selected':''}>${c}</option>`).join('')}
-          </select>
-          <input id="sNewCat" placeholder="或输入新分类" style="flex:2">
+          <select id="sCat" style="flex:1">${loadCats().map(c=>`<option ${comp&&comp.category===c?'selected':''}>${c}</option>`).join('')}</select>
+          <input id="sNewCat" placeholder="或输入新分类" style="flex:1">
         </div>
       </div>
-      <div id="companyInfo"></div>
       <div class="form-group">
         <label>📈 基本面分析</label>
-        <textarea id="sFund" placeholder="财务亮点、护城河、竞争优势..." rows="4">${comp?comp.fundamental:''}</textarea>
+        <textarea id="sFund" placeholder="财务亮点、护城河、竞争优势..." rows="4">${comp?esc(comp.fundamental):''}</textarea>
       </div>
       <div class="form-group">
         <label>⚠️ 风险提示</label>
-        <textarea id="sRisk" placeholder="潜在雷区、行业风险、政策风险..." rows="3">${comp?comp.risk:''}</textarea>
+        <textarea id="sRisk" placeholder="潜在雷区、行业风险..." rows="3">${comp?esc(comp.risk):''}</textarea>
       </div>
       <div class="form-group">
         <label>🎯 操作计划</label>
-        <textarea id="sPlan" placeholder="买入/卖出逻辑、目标价位、仓位规划..." rows="3">${comp?comp.plan:''}</textarea>
+        <textarea id="sPlan" placeholder="买入/卖出逻辑、目标价位..." rows="3">${comp?esc(comp.plan):''}</textarea>
       </div>
       <button class="btn btn-primary" onclick="saveCompany()">💾 保存分析</button>
     </div>`;
 }
 
-async function searchStock(){
-  const q=document.getElementById('sQuery').value.trim()||document.getElementById('sCode').value.trim();
+async function doSearch(){
+  const q=(document.getElementById('sQuery')||document.getElementById('sCode')).value.trim();
   if(!q)return;
-  const res = document.getElementById('searchResult');
-  res.innerHTML = '<div class="search-results">⏳ 查询中...</div>';
+  const res=document.getElementById('searchResult');
+  const info=document.getElementById('companyInfo');
+  res.innerHTML='<div class="search-results"><span class="loading"></span>查询中...</div>';
+  if(info)info.innerHTML='';
   try{
-    const data = await new Promise((resolve,reject)=>{
-      const cbName = 'cb_' + Date.now();
-      window[cbName] = function(d){resolve(d);delete window[cbName];document.head.removeChild(sc)};
-      const sc=document.createElement('script');
-      sc.src=`https://searchapi.eastmoney.com/api/suggest/get?input=${encodeURIComponent(q)}&type=14&token=D43BF722C8E33BDC906FB84D85E326E8&cb=${cbName}`;
-      sc.onerror=()=>reject('error');
-      document.head.appendChild(sc);
-      setTimeout(()=>reject('timeout'),5000);
-    });
-    const list = (data.QuotationCodeTable?.Data||[]).filter(r=>r.Classify==='AStock');
+    const url=`https://searchapi.eastmoney.com/api/suggest/get?input=${encodeURIComponent(q)}&type=14&token=D43BF722C8E33BDC906FB84D85E326E8&cb=__CB__`;
+    const data=await jsonpFetch(url);
+    const list=(data.QuotationCodeTable?.Data||[]).filter(r=>r.Classify==='AStock');
     if(!list.length){res.innerHTML='<div class="search-results">❌ 未找到匹配A股</div>';return}
-    res.innerHTML=`<div class="search-results"><select id="sSel" onchange="fillStock()">
+    res.innerHTML=`<div class="search-results"><select id="sSel" onchange="onSelect()">
       ${list.map(r=>`<option value="${r.Code}" data-name="${r.Name}">${r.Code} - ${r.Name} (${r.SecurityTypeName||''})</option>`).join('')}
     </select></div>`;
-    fillStock();
-    loadCompanyInfo(list[0].Code);
-  }catch(e){res.innerHTML='<div class="search-results">❌ 查询失败，请手动输入名称</div>'}
+    onSelect();
+  }catch(e){
+    console.error('search error:',e);
+    res.innerHTML='<div class="search-results">❌ 查询失败，请手动输入代码和名称</div>';
+  }
 }
 
-// 加载公司简介
-async function loadCompanyInfo(code){
-  const infoEl=document.getElementById('companyInfo');
-  if(!infoEl)return;
-  infoEl.innerHTML='';
-  try{
-    const resp=await fetch(`https://datacenter.eastmoney.com/securities/api/data/v1/get?reportName=RPT_F10_BASIC_ORGINFO&columns=SECUCODE,SECURITY_CODE,SECURITY_NAME_ABBR,ORG_PROFILE&filter=(SECURITY_CODE=%22${code}%22)`);
-    const json=await resp.json();
-    const d=json.result?.data?.[0];
-    if(d&&d.ORG_PROFILE){
-      infoEl.innerHTML=`<div class="card" style="background:#f8f9fa;border-left:3px solid #1a1a2e">
-        <h4 style="margin-bottom:6px;color:#1a1a2e">🏢 公司简介</h4>
-        <p style="font-size:13px;line-height:1.7;color:#555">${d.ORG_PROFILE.trim()}</p>
-      </div>`;
-    }
-  }catch(e){}
-}
-
-function fillStock(){
-  const sel=document.getElementById('sSel');
-  if(!sel)return;
+function onSelect(){
+  const sel=document.getElementById('sSel');if(!sel)return;
   const opt=sel.options[sel.selectedIndex];
   document.getElementById('sCode').value=opt.value;
   document.getElementById('sName').value=opt.dataset.name;
-  loadCompanyInfo(opt.value);
+  loadProfile(opt.value);
+}
+
+async function loadProfile(code){
+  const el=document.getElementById('companyInfo');if(!el)return;
+  el.innerHTML='<div class="info-box"><span class="loading"></span>加载公司简介...</div>';
+  try{
+    const url=`https://datacenter.eastmoney.com/securities/api/data/v1/get?reportName=RPT_F10_BASIC_ORGINFO&columns=SECURITY_NAME_ABBR,ORG_PROFILE&filter=(SECURITY_CODE=%22${code}%22)&cb=__CB__`;
+    const data=await jsonpFetch(url);
+    const d=data.result?.data?.[0];
+    if(d&&d.ORG_PROFILE){
+      el.innerHTML=`<div class="info-box"><h4>🏢 ${esc(d.SECURITY_NAME_ABBR||'')} - 公司简介</h4>${esc(d.ORG_PROFILE.trim())}</div>`;
+    }else{el.innerHTML=''}
+  }catch(e){
+    console.error('profile error:',e);
+    el.innerHTML='';
+  }
 }
 
 function saveCompany(){
@@ -217,107 +211,64 @@ function saveCompany(){
   const data=loadData();
   const now=new Date().toLocaleString('zh-CN');
   const idx=data.findIndex(c=>c.code===code);
-  if(idx>=0){data[idx]={...data[idx],name,category,fundamental,risk,plan,updatedAt:now}}
-  else{data.push({code,name,category,fundamental,risk,plan,createdAt:now,updatedAt:now})}
+  if(idx>=0)data[idx]={...data[idx],name,category,fundamental,risk,plan,updatedAt:now};
+  else data.push({code,name,category,fundamental,risk,plan,createdAt:now,updatedAt:now});
   saveData(data);editingCode=null;alert('✅ 保存成功！');go('pool');
 }
 
 // ── 股票池 ──
 function renderPool(el){
   const data=loadData();
-  const cats=['全部',...loadCats()];
-  el.innerHTML=`
-    <div class="filters">
-      <select id="filterCat" onchange="renderPool(document.getElementById('main'))">
-        ${cats.map(c=>`<option>${c}</option>`).join('')}
-      </select>
-    </div>
-    <div id="poolList"></div>`;
+  el.innerHTML=`<div class="filters"><select id="filterCat" onchange="renderPool(document.getElementById('main'))">
+    ${['全部',...loadCats()].map(c=>`<option>${c}</option>`).join('')}</select></div><div id="poolList"></div>`;
   const fc=document.getElementById('filterCat').value;
   const filtered=fc==='全部'?data:data.filter(c=>c.category===fc);
   const list=document.getElementById('poolList');
-  if(!filtered.length){list.innerHTML='<div class="empty"><div class="icon">📭</div><p>暂无记录，去新增公司吧</p></div>';return}
-  list.innerHTML=filtered.map(c=>`
-    <div class="card">
-      <div class="card-header">
-        <div>
-          <span class="card-title">${c.name}</span>
-          <span style="color:#888;font-size:14px">(${c.code})</span>
-          <span class="card-category">${c.category}</span>
-        </div>
-        <span class="card-meta">${c.updatedAt||''}</span>
-      </div>
-      <div class="actions">
-        <button class="btn btn-edit btn-sm" onclick="editingCode='${c.code}';currentPage='add';render()">✏️ 编辑</button>
-        <button class="btn btn-danger btn-sm" onclick="delCompany('${c.code}')">🗑️ 删除</button>
-        <button class="btn btn-sm" style="background:#f0f2f5" onclick="toggleDetail('${c.code}')">📄 详情</button>
-      </div>
-      <div id="detail_${c.code}" style="display:none;margin-top:12px">
-        ${c.fundamental?`<div class="detail-section"><h4>📈 基本面分析</h4><p>${c.fundamental}</p></div>`:''}
-        ${c.risk?`<div class="detail-section"><h4>⚠️ 风险提示</h4><p>${c.risk}</p></div>`:''}
-        ${c.plan?`<div class="detail-section"><h4>🎯 操作计划</h4><p>${c.plan}</p></div>`:''}
-      </div>
-    </div>`).join('');
+  if(!filtered.length){list.innerHTML='<div class="empty"><div class="icon">📭</div><p>暂无记录</p></div>';return}
+  list.innerHTML=filtered.map(c=>`<div class="card">
+    <div class="card-header"><div>
+      <span class="card-title">${esc(c.name)}</span><span style="color:#888">(${c.code})</span>
+      <span class="card-category">${esc(c.category)}</span></div>
+      <span class="card-meta">${c.updatedAt||''}</span></div>
+    <div class="actions">
+      <button class="btn btn-edit btn-sm" onclick="editingCode='${c.code}';currentPage='add';render()">✏️ 编辑</button>
+      <button class="btn btn-danger btn-sm" onclick="delCompany('${c.code}')">🗑️ 删除</button>
+      <button class="btn btn-sm" style="background:#f0f2f5" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">📄 详情</button>
+      <div style="display:none;margin-top:12px">
+        ${c.fundamental?`<div class="detail-section"><h4>📈 基本面分析</h4><p>${esc(c.fundamental)}</p></div>`:''}
+        ${c.risk?`<div class="detail-section"><h4>⚠️ 风险提示</h4><p>${esc(c.risk)}</p></div>`:''}
+        ${c.plan?`<div class="detail-section"><h4>🎯 操作计划</h4><p>${esc(c.plan)}</p></div>`:''}
+      </div></div></div>`).join('');
 }
 
-function toggleDetail(code){
-  const el=document.getElementById('detail_'+code);
-  el.style.display=el.style.display==='none'?'block':'none';
-}
-
-function delCompany(code){
-  if(!confirm('确定删除？'))return;
-  const data=loadData().filter(c=>c.code!==code);
-  saveData(data);render();
-}
+function delCompany(code){if(!confirm('确定删除？'))return;saveData(loadData().filter(c=>c.code!==code));render()}
 
 // ── 全部记录 ──
 function renderAll(el){
   const data=loadData();
   if(!data.length){el.innerHTML='<div class="empty"><div class="icon">📋</div><p>暂无记录</p></div>';return}
-  el.innerHTML=`
-    <div class="stats">
-      <div class="stat-card"><div class="stat-num">${data.length}</div><div class="stat-label">总数</div></div>
-      <div class="stat-card"><div class="stat-num">${[...new Set(data.map(c=>c.category))].length}</div><div class="stat-label">分类</div></div>
-    </div>
-    <div class="card" style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse;font-size:14px">
-        <thead><tr style="background:#f8f9fa;text-align:left">
-          <th style="padding:10px">代码</th><th style="padding:10px">名称</th><th style="padding:10px">分类</th><th style="padding:10px">更新时间</th>
-        </tr></thead>
-        <tbody>${data.map(c=>`<tr style="border-top:1px solid #f0f0f0">
-          <td style="padding:10px">${c.code}</td><td style="padding:10px">${c.name}</td>
-          <td style="padding:10px"><span class="badge badge-${CAT_COLORS[c.category]||'blue'}">${c.category}</span></td>
-          <td style="padding:10px;color:#888;font-size:12px">${c.updatedAt||''}</td>
-        </tr>`).join('')}</tbody>
-      </table>
-    </div>`;
+  el.innerHTML=`<div class="stats"><div class="stat-card"><div class="stat-num">${data.length}</div><div class="stat-label">总数</div></div>
+    <div class="stat-card"><div class="stat-num">${new Set(data.map(c=>c.category)).size}</div><div class="stat-label">分类</div></div></div>
+    <div class="card" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:14px">
+    <thead><tr style="background:#f8f9fa;text-align:left"><th style="padding:10px">代码</th><th style="padding:10px">名称</th><th style="padding:10px">分类</th><th style="padding:10px">更新时间</th></tr></thead>
+    <tbody>${data.map(c=>`<tr style="border-top:1px solid #f0f0f0"><td style="padding:10px">${c.code}</td><td style="padding:10px">${esc(c.name)}</td>
+    <td style="padding:10px"><span class="badge badge-${CAT_COLORS[c.category]||'blue'}">${esc(c.category)}</span></td>
+    <td style="padding:10px;color:#888;font-size:12px">${c.updatedAt||''}</td></tr>`).join('')}</tbody></table></div>`;
 }
 
 // ── 导出 ──
 function renderExport(el){
   const data=loadData();
-  if(!data.length){el.innerHTML='<div class="empty"><div class="icon">📤</div><p>暂无数据可导出</p></div>';return}
+  if(!data.length){el.innerHTML='<div class="empty"><div class="icon">📤</div><p>暂无数据</p></div>';return}
   const csv='\uFEFF代码,名称,分类,基本面分析,风险提示,操作计划,创建时间,更新时间\n'+data.map(c=>
-    [c.code,c.name,c.category,`"${(c.fundamental||'').replace(/"/g,'""')}`,`"${(c.risk||'').replace(/"/g,'""')}`,`"${(c.plan||'').replace(/"/g,'""')}"`,c.createdAt,c.updatedAt].join(',')
+    [c.code,c.name,c.category,`"${(c.fundamental||'').replace(/"/g,'""')}"`,`"${(c.risk||'').replace(/"/g,'""')}"`,`"${(c.plan||'').replace(/"/g,'""')}"`,c.createdAt,c.updatedAt].join(',')
   ).join('\n');
-  el.innerHTML=`
-    <div class="card">
-      <h3 style="margin-bottom:12px">📤 导出数据</h3>
-      <p style="margin-bottom:12px;color:#888">共 ${data.length} 条记录</p>
-      <div class="export-btns">
-        <button class="btn btn-primary" onclick="downloadCSV()">📥 导出 CSV</button>
-      </div>
-    </div>`;
-  window._csvData=csv;
+  el.innerHTML=`<div class="card"><h3 style="margin-bottom:12px">📤 导出数据</h3>
+    <p style="margin-bottom:12px;color:#888">共 ${data.length} 条记录</p>
+    <button class="btn btn-primary" onclick="dlCSV()">📥 导出 CSV</button></div>`;
+  window._csv=csv;
 }
-
-function downloadCSV(){
-  const blob=new Blob([window._csvData],{type:'text/csv;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='stock_analysis.csv';a.click();
-  URL.revokeObjectURL(url);
-}
+function dlCSV(){const b=new Blob([window._csv],{type:'text/csv;charset=utf-8'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='stock_analysis.csv';a.click();URL.revokeObjectURL(u)}
 
 render();
 </script>

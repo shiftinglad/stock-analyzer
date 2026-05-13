@@ -312,11 +312,6 @@ elif menu == "📤 导出数据":
             st.download_button("📥 导出 CSV", csv, "stock_analysis.csv", "text/csv",
                               use_container_width=True)
         with col2:
-            from io import BytesIO
-            buf = BytesIO()
-            df.to_excel(buf, index=False, engine="openpyxl")
-            st.download_button("📥 导出 Excel", buf.getvalue(), "stock_analysis.xlsx",
-                              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                              use_container_width=True)
+            st.info("Excel导出已禁用，请用CSV")
         
         st.caption(f"共 {len(df)} 条记录")

@@ -111,16 +111,20 @@ function renderAdd(el){
     <div class="card">
       <h3 style="margin-bottom:16px">${comp?'✏️ 编辑公司':'📝 新增公司分析'}</h3>
       <div class="form-group">
-        <label>股票代码</label>
+        <label>🔍 搜索股票（支持代码/名称/拼音）</label>
         <div class="search-row">
-          <input id="sCode" placeholder="如 600519" value="${comp?comp.code:''}" ${comp?'disabled':''}>
-          <button onclick="searchStock()">🔍 查询</button>
+          <input id="sQuery" placeholder="如 600519 / 贵州茅台 / gzmt" value="">
+          <button onclick="searchStock()">查询</button>
         </div>
       </div>
       <div id="searchResult"></div>
       <div class="form-group">
+        <label>股票代码</label>
+        <input id="sCode" placeholder="自动填充或手动输入" value="${comp?comp.code:''}" ${comp?'disabled':''}>
+      </div>
+      <div class="form-group">
         <label>公司名称</label>
-        <input id="sName" placeholder="如 贵州茅台" value="${comp?comp.name:''}">
+        <input id="sName" placeholder="自动填充或手动输入" value="${comp?comp.name:''}">
       </div>
       <div class="form-group">
         <label>分类</label>
@@ -148,8 +152,8 @@ function renderAdd(el){
 }
 
 async function searchStock(){
-  const code = document.getElementById('sCode').value.trim();
-  if(!code) return;
+  const q=document.getElementById('sQuery').value.trim()||document.getElementById('sCode').value.trim();
+  if(!q)return;
   const res = document.getElementById('searchResult');
   res.innerHTML = '<div class="search-results">⏳ 查询中...</div>';
   try{
@@ -157,7 +161,7 @@ async function searchStock(){
       const cbName = 'cb_' + Date.now();
       window[cbName] = function(d){resolve(d);delete window[cbName];document.head.removeChild(sc)};
       const sc=document.createElement('script');
-      sc.src=`https://searchapi.eastmoney.com/api/suggest/get?input=${encodeURIComponent(code)}&type=14&token=D43BF722C8E33BDC906FB84D85E326E8&cb=${cbName}`;
+      sc.src=`https://searchapi.eastmoney.com/api/suggest/get?input=${encodeURIComponent(q)}&type=14&token=D43BF722C8E33BDC906FB84D85E326E8&cb=${cbName}`;
       sc.onerror=()=>reject('error');
       document.head.appendChild(sc);
       setTimeout(()=>reject('timeout'),5000);

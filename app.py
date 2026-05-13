@@ -11,6 +11,7 @@ import os
 import urllib.request
 import json
 import ssl
+import urllib.parse
 
 # ── 页面配置 ──
 st.set_page_config(
@@ -154,9 +155,7 @@ if menu == "📝 新增公司":
         except:
             return []
 
-    import urllib.parse
-
-    if edit_code:
+        if edit_code:
         st.subheader(f"✏️ 编辑公司: {edit_code}")
         comp = get_company(edit_code)
         if comp:

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A股投资分析工具</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f2f5;color:#333;min-height:100vh}
+.header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.header h1{font-size:18px;font-weight:600}
+.header .subtitle{font-size:12px;opacity:.7}
+.nav{display:flex;gap:8px;background:#fff;padding:10px 16px;border-bottom:1px solid #e0e0e0;overflow-x:auto}
+.nav button{padding:8px 16px;border:1px solid #ddd;border-radius:20px;background:#f8f9fa;cursor:pointer;font-size:14px;white-space:nowrap;transition:all .2s}
+.nav button.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.nav button:hover{background:#e8e8e8}
+.nav button.active:hover{background:#2a2a4e}
+.container{max-width:800px;margin:0 auto;padding:16px}
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.card-title{font-size:16px;font-weight:600;color:#1a1a2e}
+.card-meta{font-size:12px;color:#888}
+.card-category{display:inline-block;background:#e8edf5;color:#1a1a2e;padding:2px 10px;border-radius:12px;font-size:12px}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-red{background:#fee2e2;color:#dc2626}
+.badge-green{background:#dcfce7;color:#16a34a}
+.badge-yellow{background:#fef9c3;color:#a16207}
+.badge-purple{background:#f3e8ff;color:#7c3aed}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:14px;font-weight:500;margin-bottom:6px;color:#555}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;transition:border .2s}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:#1a1a2e}
+.form-group textarea{resize:vertical;min-height:80px}
+.btn{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:all .2s}
+.btn-primary{background:#1a1a2e;color:#fff;width:100%}
+.btn-primary:hover{background:#2a2a4e}
+.btn-danger{background:#fee2e2;color:#dc2626;padding:6px 12px;font-size:12px}
+.btn-danger:hover{background:#fecaca}
+.btn-edit{background:#dbeafe;color:#1d4ed8;padding:6px 12px;font-size:12px}
+.btn-edit:hover{background:#bfdbfe}
+.btn-sm{padding:6px 12px;font-size:13px}
+.search-row{display:flex;gap:8px}
+.search-row input{flex:1}
+.search-row button{padding:10px 16px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px}
+.search-results{background:#f8f9fa;border-radius:8px;padding:8px;margin-bottom:16px}
+.search-results select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:14px}
+.detail-section{margin-bottom:12px}
+.detail-section h4{font-size:13px;color:#888;margin-bottom:4px;text-transform:uppercase}
+.detail-section p{font-size:14px;line-height:1.6;white-space:pre-wrap}
+.empty{text-align:center;padding:40px 20px;color:#999}
+.empty .icon{font-size:48px;margin-bottom:12px}
+.stats{display:flex;gap:12px;margin-bottom:16px}
+.stat-card{flex:1;background:#fff;border-radius:12px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.stat-num{font-size:24px;font-weight:700;color:#1a1a2e}
+.stat-label{font-size:12px;color:#888}
+.filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filters select{padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px}
+.actions{display:flex;gap:8px;margin-top:8px}
+.export-btns{display:flex;gap:12px;margin-top:12px}
+.export-btns button{flex:1}
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:16px;padding:20px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto}
+.modal h3{margin-bottom:16px}
+.confirm{padding:12px 20px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;cursor:pointer;width:100%;font-size:14px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>📊 A股投资分析</h1>
+    <div class="subtitle">个人投资分析工具</div>
+  </div>
+</div>
+<div class="nav" id="nav"></div>
+<div class="container" id="main"></div>
+
+<script>
+const DB_KEY = 'stock_analysis_data';
+const CATS_KEY = 'stock_categories';
+const DEFAULT_CATS = ['核心资产','高股息','科技成长','周期股','观察仓'];
+const CAT_COLORS = {'核心资产':'blue','高股息':'green','科技成长':'purple','周期股':'yellow','观察仓':'red'};
+
+function loadData(){return JSON.parse(localStorage.getItem(DB_KEY)||'[]')}
+function saveData(d){localStorage.setItem(DB_KEY,JSON.stringify(d))}
+function loadCats(){return JSON.parse(localStorage.getItem(CATS_KEY)||'null')||DEFAULT_CATS}
+function saveCats(c){localStorage.setItem(CATS_KEY,JSON.stringify(c))}
+
+let currentPage = 'add';
+let editingCode = null;
+
+function render(){
+  const nav = document.getElementById('nav');
+  const pages = [{id:'add',label:'📝 新增公司'},{id:'pool',label:'📂 股票池'},{id:'all',label:'📋 全部记录'},{id:'export',label:'📤 导出'}];
+  nav.innerHTML = pages.map(p=>`<button class="${currentPage===p.id?'active':''}" onclick="go('${p.id}')">${p.label}</button>`).join('');
+  
+  const main = document.getElementById('main');
+  if(currentPage==='add') renderAdd(main);
+  else if(currentPage==='pool') renderPool(main);
+  else if(currentPage==='all') renderAll(main);
+  else if(currentPage==='export') renderExport(main);
+}
+
+function go(page){currentPage=page;editingCode=null;render()}
+
+// ── 新增/编辑 ──
+function renderAdd(el){
+  const data = loadData();
+  const comp = editingCode ? data.find(c=>c.code===editingCode) : null;
+  el.innerHTML = `
+    <div class="card">
+      <h3 style="margin-bottom:16px">${comp?'✏️ 编辑公司':'📝 新增公司分析'}</h3>
+      <div class="form-group">
+        <label>股票代码</label>
+        <div class="search-row">
+          <input id="sCode" placeholder="如 600519" value="${comp?comp.code:''}" ${comp?'disabled':''}>
+          <button onclick="searchStock()">🔍 查询</button>
+        </div>
+      </div>
+      <div id="searchResult"></div>
+      <div class="form-group">
+        <label>公司名称</label>
+        <input id="sName" placeholder="如 贵州茅台" value="${comp?comp.name:''}">
+      </div>
+      <div class="form-group">
+        <label>分类</label>
+        <div style="display:flex;gap:8px">
+          <select id="sCat" style="flex:2">
+            ${loadCats().map(c=>`<option ${comp&&comp.category===c?'selected':''}>${c}</option>`).join('')}
+          </select>
+          <input id="sNewCat" placeholder="或输入新分类" style="flex:2">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>📈 基本面分析</label>
+        <textarea id="sFund" placeholder="财务亮点、护城河、竞争优势..." rows="4">${comp?comp.fundamental:''}</textarea>
+      </div>
+      <div class="form-group">
+        <label>⚠️ 风险提示</label>
+        <textarea id="sRisk" placeholder="潜在雷区、行业风险、政策风险..." rows="3">${comp?comp.risk:''}</textarea>
+      </div>
+      <div class="form-group">
+        <label>🎯 操作计划</label>
+        <textarea id="sPlan" placeholder="买入/卖出逻辑、目标价位、仓位规划..." rows="3">${comp?comp.plan:''}</textarea>
+      </div>
+      <button class="btn btn-primary" onclick="saveCompany()">💾 保存分析</button>
+    </div>`;
+}
+
+async function searchStock(){
+  const code = document.getElementById('sCode').value.trim();
+  if(!code) return;
+  const res = document.getElementById('searchResult');
+  res.innerHTML = '<div class="search-results">⏳ 查询中...</div>';
+  try{
+    const resp = await fetch(`https://searchapi.eastmoney.com/api/suggest/get?input=${encodeURIComponent(code)}&type=14&token=D43BF722C8E33BDC906FB84D85E326E8`);
+    const json = await resp.json();
+    const list = (json.QuotationCodeTable?.Data||[]).filter(r=>r.Classify==='AStock');
+    if(!list.length){res.innerHTML='<div class="search-results">❌ 未找到匹配A股</div>';return}
+    res.innerHTML=`<div class="search-results"><select id="sSel" onchange="fillStock()">
+      ${list.map(r=>`<option value="${r.Code}" data-name="${r.Name}">${r.Code} - ${r.Name} (${r.SecurityTypeName||''})</option>`).join('')}
+    </select></div>`;
+    fillStock();
+  }catch(e){res.innerHTML='<div class="search-results">❌ 查询失败，请手动输入</div>'}
+}
+
+function fillStock(){
+  const sel=document.getElementById('sSel');
+  if(!sel)return;
+  const opt=sel.options[sel.selectedIndex];
+  document.getElementById('sCode').value=opt.value;
+  document.getElementById('sName').value=opt.dataset.name;
+}
+
+function saveCompany(){
+  const code=document.getElementById('sCode').value.trim();
+  const name=document.getElementById('sName').value.trim();
+  const newCat=document.getElementById('sNewCat').value.trim();
+  const category=newCat||document.getElementById('sCat').value;
+  const fundamental=document.getElementById('sFund').value;
+  const risk=document.getElementById('sRisk').value;
+  const plan=document.getElementById('sPlan').value;
+  if(!code||!name){alert('请填写股票代码和公司名称');return}
+  if(newCat){const cats=loadCats();if(!cats.includes(newCat)){cats.push(newCat);saveCats(cats)}}
+  const data=loadData();
+  const now=new Date().toLocaleString('zh-CN');
+  const idx=data.findIndex(c=>c.code===code);
+  if(idx>=0){data[idx]={...data[idx],name,category,fundamental,risk,plan,updatedAt:now}}
+  else{data.push({code,name,category,fundamental,risk,plan,createdAt:now,updatedAt:now})}
+  saveData(data);editingCode=null;alert('✅ 保存成功！');go('pool');
+}
+
+// ── 股票池 ──
+function renderPool(el){
+  const data=loadData();
+  const cats=['全部',...loadCats()];
+  el.innerHTML=`
+    <div class="filters">
+      <select id="filterCat" onchange="renderPool(document.getElementById('main'))">
+        ${cats.map(c=>`<option>${c}</option>`).join('')}
+      </select>
+    </div>
+    <div id="poolList"></div>`;
+  const fc=document.getElementById('filterCat').value;
+  const filtered=fc==='全部'?data:data.filter(c=>c.category===fc);
+  const list=document.getElementById('poolList');
+  if(!filtered.length){list.innerHTML='<div class="empty"><div class="icon">📭</div><p>暂无记录，去新增公司吧</p></div>';return}
+  list.innerHTML=filtered.map(c=>`
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <span class="card-title">${c.name}</span>
+          <span style="color:#888;font-size:14px">(${c.code})</span>
+          <span class="card-category">${c.category}</span>
+        </div>
+        <span class="card-meta">${c.updatedAt||''}</span>
+      </div>
+      <div class="actions">
+        <button class="btn btn-edit btn-sm" onclick="editingCode='${c.code}';currentPage='add';render()">✏️ 编辑</button>
+        <button class="btn btn-danger btn-sm" onclick="delCompany('${c.code}')">🗑️ 删除</button>
+        <button class="btn btn-sm" style="background:#f0f2f5" onclick="toggleDetail('${c.code}')">📄 详情</button>
+      </div>
+      <div id="detail_${c.code}" style="display:none;margin-top:12px">
+        ${c.fundamental?`<div class="detail-section"><h4>📈 基本面分析</h4><p>${c.fundamental}</p></div>`:''}
+        ${c.risk?`<div class="detail-section"><h4>⚠️ 风险提示</h4><p>${c.risk}</p></div>`:''}
+        ${c.plan?`<div class="detail-section"><h4>🎯 操作计划</h4><p>${c.plan}</p></div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function toggleDetail(code){
+  const el=document.getElementById('detail_'+code);
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function delCompany(code){
+  if(!confirm('确定删除？'))return;
+  const data=loadData().filter(c=>c.code!==code);
+  saveData(data);render();
+}
+
+// ── 全部记录 ──
+function renderAll(el){
+  const data=loadData();
+  if(!data.length){el.innerHTML='<div class="empty"><div class="icon">📋</div><p>暂无记录</p></div>';return}
+  el.innerHTML=`
+    <div class="stats">
+      <div class="stat-card"><div class="stat-num">${data.length}</div><div class="stat-label">总数</div></div>
+      <div class="stat-card"><div class="stat-num">${[...new Set(data.map(c=>c.category))].length}</div><div class="stat-label">分类</div></div>
+    </div>
+    <div class="card" style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:14px">
+        <thead><tr style="background:#f8f9fa;text-align:left">
+          <th style="padding:10px">代码</th><th style="padding:10px">名称</th><th style="padding:10px">分类</th><th style="padding:10px">更新时间</th>
+        </tr></thead>
+        <tbody>${data.map(c=>`<tr style="border-top:1px solid #f0f0f0">
+          <td style="padding:10px">${c.code}</td><td style="padding:10px">${c.name}</td>
+          <td style="padding:10px"><span class="badge badge-${CAT_COLORS[c.category]||'blue'}">${c.category}</span></td>
+          <td style="padding:10px;color:#888;font-size:12px">${c.updatedAt||''}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+}
+
+// ── 导出 ──
+function renderExport(el){
+  const data=loadData();
+  if(!data.length){el.innerHTML='<div class="empty"><div class="icon">📤</div><p>暂无数据可导出</p></div>';return}
+  const csv='\uFEFF代码,名称,分类,基本面分析,风险提示,操作计划,创建时间,更新时间\n'+data.map(c=>
+    [c.code,c.name,c.category,`"${(c.fundamental||'').replace(/"/g,'""')}`,`"${(c.risk||'').replace(/"/g,'""')}`,`"${(c.plan||'').replace(/"/g,'""')}"`,c.createdAt,c.updatedAt].join(',')
+  ).join('\n');
+  el.innerHTML=`
+    <div class="card">
+      <h3 style="margin-bottom:12px">📤 导出数据</h3>
+      <p style="margin-bottom:12px;color:#888">共 ${data.length} 条记录</p>
+      <div class="export-btns">
+        <button class="btn btn-primary" onclick="downloadCSV()">📥 导出 CSV</button>
+      </div>
+    </div>`;
+  window._csvData=csv;
+}
+
+function downloadCSV(){
+  const blob=new Blob([window._csvData],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='stock_analysis.csv';a.click();
+  URL.revokeObjectURL(url);
+}
+
+render();
+</script>
+</body>
+</html>

@@ -135,6 +135,7 @@ function renderAdd(el){
           <input id="sNewCat" placeholder="或输入新分类" style="flex:2">
         </div>
       </div>
+      <div id="companyInfo"></div>
       <div class="form-group">
         <label>📈 基本面分析</label>
         <textarea id="sFund" placeholder="财务亮点、护城河、竞争优势..." rows="4">${comp?comp.fundamental:''}</textarea>
@@ -172,7 +173,26 @@ async function searchStock(){
       ${list.map(r=>`<option value="${r.Code}" data-name="${r.Name}">${r.Code} - ${r.Name} (${r.SecurityTypeName||''})</option>`).join('')}
     </select></div>`;
     fillStock();
+    loadCompanyInfo(list[0].Code);
   }catch(e){res.innerHTML='<div class="search-results">❌ 查询失败，请手动输入名称</div>'}
+}
+
+// 加载公司简介
+async function loadCompanyInfo(code){
+  const infoEl=document.getElementById('companyInfo');
+  if(!infoEl)return;
+  infoEl.innerHTML='';
+  try{
+    const resp=await fetch(`https://datacenter.eastmoney.com/securities/api/data/v1/get?reportName=RPT_F10_BASIC_ORGINFO&columns=SECUCODE,SECURITY_CODE,SECURITY_NAME_ABBR,ORG_PROFILE&filter=(SECURITY_CODE=%22${code}%22)`);
+    const json=await resp.json();
+    const d=json.result?.data?.[0];
+    if(d&&d.ORG_PROFILE){
+      infoEl.innerHTML=`<div class="card" style="background:#f8f9fa;border-left:3px solid #1a1a2e">
+        <h4 style="margin-bottom:6px;color:#1a1a2e">🏢 公司简介</h4>
+        <p style="font-size:13px;line-height:1.7;color:#555">${d.ORG_PROFILE.trim()}</p>
+      </div>`;
+    }
+  }catch(e){}
 }
 
 function fillStock(){
@@ -181,6 +201,7 @@ function fillStock(){
   const opt=sel.options[sel.selectedIndex];
   document.getElementById('sCode').value=opt.value;
   document.getElementById('sName').value=opt.dataset.name;
+  loadCompanyInfo(opt.value);
 }
 
 function saveCompany(){

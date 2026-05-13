@@ -34,7 +34,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── 数据库初始化 ──
-DB_PATH = os.path.join(os.path.dirname(__file__), "stock_analysis.db")
+DB_PATH = os.path.join(os.path.expanduser("~"), "stock_analysis.db")
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -128,7 +128,7 @@ menu = st.sidebar.radio(
     label_visibility="collapsed"
 )
 st.sidebar.markdown("---")
-st.sidebar.caption(f"💡 数据库: {DB_PATH}")
+st.sidebar.caption("💡 数据已持久化存储")
 
 # ══════════════════════════════════════
 # 📝 新增/编辑公司

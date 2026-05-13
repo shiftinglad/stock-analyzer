@@ -1,0 +1,4 @@
+.streamlit/
+__pycache__/
+*.pyc
+stock_analysis.db

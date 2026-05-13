@@ -153,15 +153,22 @@ async function searchStock(){
   const res = document.getElementById('searchResult');
   res.innerHTML = '<div class="search-results">⏳ 查询中...</div>';
   try{
-    const resp = await fetch(`https://searchapi.eastmoney.com/api/suggest/get?input=${encodeURIComponent(code)}&type=14&token=D43BF722C8E33BDC906FB84D85E326E8`);
-    const json = await resp.json();
-    const list = (json.QuotationCodeTable?.Data||[]).filter(r=>r.Classify==='AStock');
+    const data = await new Promise((resolve,reject)=>{
+      const cbName = 'cb_' + Date.now();
+      window[cbName] = function(d){resolve(d);delete window[cbName];document.head.removeChild(sc)};
+      const sc=document.createElement('script');
+      sc.src=`https://searchapi.eastmoney.com/api/suggest/get?input=${encodeURIComponent(code)}&type=14&token=D43BF722C8E33BDC906FB84D85E326E8&cb=${cbName}`;
+      sc.onerror=()=>reject('error');
+      document.head.appendChild(sc);
+      setTimeout(()=>reject('timeout'),5000);
+    });
+    const list = (data.QuotationCodeTable?.Data||[]).filter(r=>r.Classify==='AStock');
     if(!list.length){res.innerHTML='<div class="search-results">❌ 未找到匹配A股</div>';return}
     res.innerHTML=`<div class="search-results"><select id="sSel" onchange="fillStock()">
       ${list.map(r=>`<option value="${r.Code}" data-name="${r.Name}">${r.Code} - ${r.Name} (${r.SecurityTypeName||''})</option>`).join('')}
     </select></div>`;
     fillStock();
-  }catch(e){res.innerHTML='<div class="search-results">❌ 查询失败，请手动输入</div>'}
+  }catch(e){res.innerHTML='<div class="search-results">❌ 查询失败，请手动输入名称</div>'}
 }
 
 function fillStock(){
